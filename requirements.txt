@@ -1,0 +1,5 @@
+matplotlib==3.10.3
+Pillow==11.2.1
+pymupdf==1.27.2.3
+reportlab==4.4.4
+streamlit==1.45.1

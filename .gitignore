@@ -1,0 +1,24 @@
+# Ignore everything by default
+*
+
+# Allow deployment config
+!.gitignore
+!requirements.txt
+
+# Allow Streamlit config
+!.streamlit/
+!.streamlit/**
+
+# Allow the app package
+!automatic_table_generator/
+!automatic_table_generator/**
+
+# But exclude generated outputs and cache inside the package
+automatic_table_generator/__pycache__/
+automatic_table_generator/**/__pycache__/
+automatic_table_generator/*.pdf
+automatic_table_generator/*.jpeg
+automatic_table_generator/*.jpg
+
+# System files
+.DS_Store
