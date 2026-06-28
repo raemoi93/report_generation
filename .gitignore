@@ -4,6 +4,7 @@
 # Allow deployment config
 !.gitignore
 !requirements.txt
+!runtime.txt
 
 # Allow Streamlit config
 !.streamlit/
