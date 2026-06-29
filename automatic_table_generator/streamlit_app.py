@@ -147,7 +147,7 @@ if st.session_state.get('_sel') not in options:
 cur = st.session_state['current_profile']
 default_idx = profiles.index(cur) if cur in profiles else len(profiles)
 
-sel_col, name_col, btn_col, dl_col = st.columns([3, 2, 1, 2])
+sel_col, name_col, btn_col, dl_col, report_dl_col = st.columns([3, 2, 1, 2, 2])
 
 selected = sel_col.selectbox(
     '프로필',
@@ -178,7 +178,7 @@ else:
         st.session_state['current_profile'] = selected
         st.rerun()
 
-# Download current profile
+# Download buttons (profile + report side by side)
 if st.session_state['current_profile']:
     dl_col.download_button(
         '⬇ 프로필 다운로드',
@@ -186,6 +186,15 @@ if st.session_state['current_profile']:
         file_name=f'{st.session_state["current_profile"]}.txt',
         mime='text/plain',
         key='_dl',
+    )
+
+if st.session_state.get('last_jpeg'):
+    report_dl_col.download_button(
+        '⬇ 보고서 다운로드',
+        st.session_state['last_jpeg'],
+        file_name=f'{st.session_state.get("last_filename", "grade_report")}.jpeg',
+        mime='image/jpeg',
+        key='_report_dl',
     )
 
 # Upload profile
@@ -293,13 +302,9 @@ if btn_col.button('보고서 생성', type='primary'):
                 jpeg_bytes = pix.tobytes('jpeg', jpg_quality=90)
                 pdf_doc.close()
 
+                st.session_state['last_jpeg']     = jpeg_bytes
+                st.session_state['last_filename'] = filename
                 st.image(io.BytesIO(jpeg_bytes))
-                st.download_button(
-                    '⬇ 다운로드',
-                    jpeg_bytes,
-                    file_name=f'{filename}.jpeg',
-                    mime='image/jpeg',
-                )
             except Exception as e:
                 st.error(f'생성 오류: {e}')
                 raise
