@@ -139,51 +139,60 @@ st.session_state.setdefault('current_profile', None)
 st.subheader('학생 프로필')
 profiles = list_profiles()
 
-# Guard: if stored selectbox value is no longer in options, reset it
-options = profiles + ['+ 새 프로필']
-if st.session_state.get('_sel') not in options:
+# Guard: selectbox key must be a valid option
+if st.session_state.get('_sel') not in profiles:
     st.session_state.pop('_sel', None)
 
 cur = st.session_state['current_profile']
-default_idx = profiles.index(cur) if cur in profiles else len(profiles)
+default_idx = profiles.index(cur) if cur in profiles else 0
 
-sel_col, name_col, btn_col, dl_col, report_dl_col = st.columns([3, 2, 1, 2, 2])
+sel_col, name_col, create_col, save_col, dl_col, report_dl_col = st.columns([3, 2, 2, 2, 2, 2])
 
-selected = sel_col.selectbox(
-    '프로필',
-    options,
-    index=default_idx,
-    key='_sel',
-    label_visibility='collapsed',
-)
-
-if selected == '+ 새 프로필':
-    new_name = name_col.text_input('이름', placeholder='학생 이름 입력', key='_new_name',
-                                   label_visibility='collapsed')
-    if btn_col.button('생성', key='_create'):
-        nm = new_name.strip()
-        if nm:
-            if cur:
-                _save_profile(cur)        # auto-save current before switching
-            _clear_inputs()
-            _save_profile(nm)
-            st.session_state['current_profile'] = nm
-            st.session_state.pop('_sel', None)
-            st.rerun()
-else:
-    if selected != cur:                   # profile switch
+# ── Existing profile selector ──────────────────────────────────────────────────
+if profiles:
+    selected = sel_col.selectbox(
+        '프로필',
+        profiles,
+        index=default_idx,
+        key='_sel',
+        label_visibility='collapsed',
+    )
+    if selected != cur:                   # profile switch — auto-save then load
         if cur:
-            _save_profile(cur)            # auto-save before switching
+            _save_profile(cur)
         _load_profile(selected)
         st.session_state['current_profile'] = selected
         st.rerun()
+else:
+    sel_col.caption('프로필 없음')
 
-# Download buttons (profile + report side by side)
-if st.session_state['current_profile']:
+# ── New profile creation (always visible) ──────────────────────────────────────
+new_name = name_col.text_input('새 학생 이름', placeholder='새 학생 이름',
+                               key='_new_name', label_visibility='collapsed')
+if create_col.button('프로필 생성', key='_create'):
+    nm = new_name.strip()
+    if nm:
+        if cur:
+            _save_profile(cur)            # save current work immediately
+        _clear_inputs()
+        _save_profile(nm)
+        st.session_state['current_profile'] = nm
+        st.session_state.pop('_sel', None)
+        st.rerun()
+    else:
+        st.warning('학생 이름을 입력하세요.')
+
+# ── Manual save ────────────────────────────────────────────────────────────────
+if cur and save_col.button('프로필 저장', key='_save'):
+    _save_profile(cur)
+    st.toast(f'✓ {cur} 저장 완료')
+
+# ── Profile download ───────────────────────────────────────────────────────────
+if cur:
     dl_col.download_button(
         '⬇ 프로필 다운로드',
-        _profile_to_text(st.session_state['current_profile']).encode('utf-8'),
-        file_name=f'{st.session_state["current_profile"]}.txt',
+        _profile_to_text(cur).encode('utf-8'),
+        file_name=f'{cur}.txt',
         mime='text/plain',
         key='_dl',
     )
