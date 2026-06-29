@@ -304,7 +304,11 @@ if btn_col.button('보고서 생성', type='primary'):
 
                 st.session_state['last_jpeg']     = jpeg_bytes
                 st.session_state['last_filename'] = filename
-                st.image(io.BytesIO(jpeg_bytes))
+                st.rerun()
             except Exception as e:
                 st.error(f'생성 오류: {e}')
                 raise
+
+# Show last generated report preview
+if st.session_state.get('last_jpeg'):
+    st.image(io.BytesIO(st.session_state['last_jpeg']))
