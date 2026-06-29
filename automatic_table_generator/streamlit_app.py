@@ -168,7 +168,7 @@ if selected == '+ 새 프로필':
             _clear_inputs()
             _save_profile(nm)
             st.session_state['current_profile'] = nm
-            st.session_state['_sel'] = nm
+            st.session_state.pop('_sel', None)
             st.rerun()
 else:
     if selected != cur:                   # profile switch
@@ -202,7 +202,7 @@ with st.expander('프로필 업로드 (.txt)'):
             f.write(text)
         _apply_text(text)
         st.session_state['current_profile'] = uname
-        st.session_state['_sel'] = uname
+        st.session_state.pop('_sel', None)
         st.session_state['_last_ul'] = uploaded.name
         st.rerun()
 
